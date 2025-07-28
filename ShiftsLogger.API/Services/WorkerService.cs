@@ -5,7 +5,7 @@ using ShiftsLogger.API.Models;
 
 namespace ShiftsLogger.API.Services;
 
-public class WorkerService
+public class WorkerService : IWorkerService
 {
     private readonly ShiftsLoggerContext _context;
 

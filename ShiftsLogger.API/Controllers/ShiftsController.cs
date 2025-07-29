@@ -15,7 +15,15 @@ public class ShiftsController : ControllerBase
         _service = service;
     }
 
-    // GET : api/Shifts/worker/5
+    // GET: api/Shifts
+    [HttpGet]
+    public async Task<ActionResult<List<Shift>>> GetAll()
+    {
+        var shifts = await _service.GetAllAsync();
+        return Ok(shifts);
+    }
+
+    // GET: api/Shifts/worker/5
     [HttpGet("worker/{workerId}")]
     public async Task<ActionResult<List<Shift>>> GetByWorkerId(int workerId)
     {

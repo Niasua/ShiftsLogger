@@ -13,6 +13,7 @@ public class ShiftService : IShiftService
         _context = context;
     }
 
+
     public async Task<Shift> AddAsync(Shift shift)
     {
         _context.Shifts.Add(shift);
@@ -28,6 +29,10 @@ public class ShiftService : IShiftService
         _context.Shifts.Remove(shift);
         await _context.SaveChangesAsync();
         return true;
+    }
+    public async Task<List<Shift>> GetAllAsync()
+    {
+        return await _context.Shifts.ToListAsync();
     }
 
     public async Task<Shift?> GetByIdAsync(int id)

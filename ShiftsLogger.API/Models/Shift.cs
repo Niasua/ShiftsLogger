@@ -1,4 +1,6 @@
-﻿namespace ShiftsLogger.API.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace ShiftsLogger.API.Models;
 
 public class Shift
 {
@@ -7,5 +9,6 @@ public class Shift
     public DateTime End { get; set; }
     public ShiftType Type { get; set; }
     public int WorkerId { get; set; }
-    public Worker Worker { get; set; } = null!;
+    [JsonIgnore]
+    public Worker? Worker { get; set; }
 }

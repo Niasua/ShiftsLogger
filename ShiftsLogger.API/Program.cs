@@ -13,6 +13,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ShiftsLoggerContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IWorkerService, WorkerService>();
+builder.Services.AddScoped<IShiftService, ShiftService>();
 
 var app = builder.Build();
 

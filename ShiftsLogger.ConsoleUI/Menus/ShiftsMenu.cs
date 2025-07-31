@@ -6,7 +6,7 @@ namespace ShiftsLogger.ConsoleUI.Menus;
 public class ShiftsMenu
 {
     public static ApiService ApiService { get; set; } = new();
-    public static void Show()
+    public static async Task Show()
     {
         bool exit = false;
 
@@ -25,38 +25,37 @@ public class ShiftsMenu
             {
                 case "Show All Shifts":
 
-                    ShowAllShifts();
+                    await ShowAllShifts();
 
                     break;
 
                 case "Show Shift by Worker ID":
 
-                    ShowShiftByWorkerId();
+                    await ShowShiftByWorkerId();
 
                     break;
 
                 case "Show Shift by ID":
 
-                    ShowShiftById();
-
+                    await ShowShiftById();
 
                     break; 
 
                 case "Create Shift":
 
-                    CreateShift();
+                    await CreateShift();
 
                     break;
 
                 case "Edit Shift":
 
-                    EditShift();
+                    await EditShift();
 
                     break;
 
                 case "Remove Shift":
 
-                    RemoveShift();
+                    await RemoveShift();
 
                     break;
 
@@ -69,73 +68,27 @@ public class ShiftsMenu
         }
     }
 
-    private static void RemoveShift()
+    private static async Task ShowAllShifts()
     {
         throw new NotImplementedException();
     }
-
-    private static void EditShift()
+    private static async Task ShowShiftByWorkerId()
     {
         throw new NotImplementedException();
     }
-
-    private static void CreateShift()
+    private static async Task ShowShiftById()
     {
         throw new NotImplementedException();
     }
-
-    private static void ShowShiftById()
+    private static async Task CreateShift()
     {
         throw new NotImplementedException();
     }
-
-    private static void ShowShiftByWorkerId()
+    private static async Task EditShift()
     {
         throw new NotImplementedException();
     }
-
-    private static void ShowAllShifts()
-    {
-        throw new NotImplementedException();
-    }
-
-    private async static void ShowAllWorkers()
-    {
-        while (true)
-        {
-            Console.Clear();
-            AnsiConsole.MarkupLine("[green]View Workers[/]");
-
-            var workers = await ApiService.GetAllWorkersAsync();
-
-            if (workers == null)
-            {
-                AnsiConsole.MarkupLine("[red]The workers could not be found.[/]");
-                AnsiConsole.MarkupLine("[grey]Press any key to go back...[/]");
-                Console.ReadKey();
-                break;
-            }
-
-            Display.ShowWorkers(workers);
-
-            AnsiConsole.MarkupLine("[grey]Press any key to go back...[/]");
-            Console.ReadKey();
-            break;
-        }
-    }
-    private static void ShowWorkerById()
-    {
-        throw new NotImplementedException();
-    }
-    private static void CreateWorker()
-    {
-        throw new NotImplementedException();
-    }
-    private static void EditWorker()
-    {
-        throw new NotImplementedException();
-    }
-    private static void RemoveWorker()
+    private static async Task RemoveShift()
     {
         throw new NotImplementedException();
     }

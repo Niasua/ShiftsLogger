@@ -10,7 +10,7 @@ public class ApiService
     public ApiService()
     {
         _client = new();
-        _client.BaseAddress = new Uri("https://localhost:7122/api/");
+        _client.BaseAddress = new Uri("http://localhost:5266/api/");
     }
 
     //Workers

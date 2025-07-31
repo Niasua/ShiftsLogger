@@ -50,7 +50,7 @@ public class WorkersMenu
 
                 case "Remove Worker":
 
-                    RemoveWorker();
+                    await RemoveWorker();
 
                     break;
 
@@ -122,14 +122,22 @@ public class WorkersMenu
             Console.Clear();
             AnsiConsole.MarkupLine("[green]Create Worker\n[/]");
 
-            var name = AnsiConsole.Ask<string>("Type worker's [green]Name[/]: ");
+            var name = AnsiConsole.Prompt(
+                new TextPrompt<string>("Type worker's [green]Name[/]:")
+                    .Validate(input =>
+                        string.IsNullOrWhiteSpace(input)
+                        ? ValidationResult.Error("[red]Name cannot be empty[/]")
+                        : ValidationResult.Success()
+                        )
+                    );
+
             var job = AnsiConsole.Ask<string>("Type worker's [green]Job[/]: ");
 
             var worker = await ApiService.CreateWorkerAsync(new Worker { Name = name, Job = job });
 
             if (worker == null)
             {
-                AnsiConsole.MarkupLine("\n[red]Worker creation was not posible.[/]");
+                AnsiConsole.MarkupLine("\n[red]Worker creation was not possible.[/]");
             }
             else
             {
@@ -164,7 +172,6 @@ public class WorkersMenu
                     .AllowEmpty()
             );
 
-
             var updatedWorker = new Worker
             {
                 Id = worker.Id,
@@ -172,11 +179,11 @@ public class WorkersMenu
                 Job = string.IsNullOrWhiteSpace(job) ? worker.Job : job
             };
 
-            var updated = ApiService.UpdateWorkerAsync(worker.Id, updatedWorker);
+            var updated = await ApiService.UpdateWorkerAsync(worker.Id, updatedWorker);
 
-            if (updated == null)
+            if (!updated)
             {
-                AnsiConsole.MarkupLine("\n[red]Worker edit was not posible.[/]");
+                AnsiConsole.MarkupLine("\n[red]Worker edit was not possible.[/]");
             }
             else
             {
@@ -190,8 +197,33 @@ public class WorkersMenu
             break;
         }
     }
-    private static void RemoveWorker()
+    private static async Task RemoveWorker()
     {
-        throw new NotImplementedException();
+        while (true)
+        {
+            Console.Clear();
+            AnsiConsole.MarkupLine("[green]Remove Worker\n[/]");
+
+            var workers = await ApiService.GetAllWorkersAsync();
+
+            var worker = Display.PromptSelectWorker(workers);
+
+            var removed = await ApiService.DeleteWorkerAsync(worker.Id);
+
+            if (!removed)
+            {
+                AnsiConsole.MarkupLine("\n[red]Worker removal was not possible.[/]");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("\n[green]Worker was successfully removed.[/]");
+            }
+
+            AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
+            Console.ReadKey();
+
+            Console.Clear();
+            break;
+        }
     }
 }

@@ -26,4 +26,23 @@ public static class Display
 
         AnsiConsole.Write(table);
     }
+
+    public static void ShowContact(Worker worker)
+    {
+        var table = new Table();
+        table.Border(TableBorder.Rounded);
+        table.AddColumn("[yellow]ID[/]");
+        table.AddColumn("[blue]Name[/]");
+        table.AddColumn("[green]Job[/]");
+
+        var apiService = new ApiService();
+
+        table.AddRow(
+                 worker.Id.ToString(),
+                 worker.Name.ToString(),
+                 worker.Job.ToString()
+                 );
+
+        AnsiConsole.Write(table);
+    }
 }

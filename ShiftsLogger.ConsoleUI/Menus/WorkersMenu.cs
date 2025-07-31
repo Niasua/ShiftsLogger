@@ -19,7 +19,7 @@ public class WorkersMenu
                 .Title("[blue]Workers Menu[/]")
                 .AddChoices(new[]
                 {
-                    "Show All Workers", "Show Worker by ID", "Create Worker", "Edit Worker", "Remove Worker", "Exit"
+                    "Show All Workers", "Show Worker by ID", "Create Worker", "Edit Worker", "Remove Worker", "Back"
                 }));
 
             switch (option)
@@ -44,7 +44,7 @@ public class WorkersMenu
 
                 case "Edit Worker":
 
-                    EditWorker();
+                    await EditWorker();
 
                     break;
 
@@ -54,7 +54,7 @@ public class WorkersMenu
 
                     break;
 
-                case "Exit":
+                case "Back":
 
                     exit = true;
 
@@ -143,9 +143,52 @@ public class WorkersMenu
             break;
         }
     }
-    private static void EditWorker()
+    private static async Task EditWorker()
     {
-        throw new NotImplementedException();
+        while (true)
+        {
+            Console.Clear();
+            AnsiConsole.MarkupLine("[green]Edit Worker\n[/]");
+
+            var workers = await ApiService.GetAllWorkersAsync();
+
+            var worker = Display.PromptSelectWorker(workers);
+
+            var name = AnsiConsole.Prompt(
+                new TextPrompt<string>($"Type worker's [green]Name[/] ([grey]{worker.Name}[/]):")
+                    .AllowEmpty()
+            );
+
+            var job = AnsiConsole.Prompt(
+                new TextPrompt<string>($"Type worker's [green]Job[/] ([grey]{worker.Job}[/]):")
+                    .AllowEmpty()
+            );
+
+
+            var updatedWorker = new Worker
+            {
+                Id = worker.Id,
+                Name = string.IsNullOrWhiteSpace(name) ? worker.Name : name,
+                Job = string.IsNullOrWhiteSpace(job) ? worker.Job : job
+            };
+
+            var updated = ApiService.UpdateWorkerAsync(worker.Id, updatedWorker);
+
+            if (updated == null)
+            {
+                AnsiConsole.MarkupLine("\n[red]Worker edit was not posible.[/]");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("\n[green]Worker was successfully edited.[/]");
+            }
+
+            AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
+            Console.ReadKey();
+
+            Console.Clear();
+            break;
+        }
     }
     private static void RemoveWorker()
     {

@@ -45,4 +45,23 @@ public static class Display
 
         AnsiConsole.Write(table);
     }
+
+    public static Worker? PromptSelectWorker(List<Worker> workers)
+    {
+        if (workers == null || workers.Count == 0)
+        {
+            AnsiConsole.MarkupLine("[red]No workers available.[/]");
+            return null;
+        }
+
+        var selected = AnsiConsole.Prompt(
+            new SelectionPrompt<Worker>()
+            .Title("[green]Select a worker:[/]")
+            .PageSize(10)
+            .UseConverter(w => $"[green]{w.Id}[/] - [green]{w.Name}[/] - [green]{w.Job}[/]")
+            .AddChoices(workers)
+        );
+
+        return selected;
+    }
 }

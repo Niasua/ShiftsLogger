@@ -31,7 +31,7 @@ public class WorkersMenu
 
                 case "Show Worker by ID":
 
-                    ShowWorkerById();
+                    await ShowWorkerById();
 
                     break;
 
@@ -74,21 +74,45 @@ public class WorkersMenu
             if (workers == null)
             {
                 AnsiConsole.MarkupLine("[red]The workers could not be found.[/]");
-                AnsiConsole.MarkupLine("[grey]Press any key to go back...[/]");
-                Console.ReadKey();
-                break;
             }
-
-            Display.ShowWorkers(workers);
+            else
+            {
+                Display.ShowWorkers(workers);
+            }
 
             AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
             Console.ReadKey();
+
+            Console.Clear();
             break;
         }
     }
-    private static void ShowWorkerById()
+    private static async Task ShowWorkerById()
     {
-        throw new NotImplementedException();
+        while (true)
+        {
+            Console.Clear();
+            AnsiConsole.MarkupLine("[green]View Worker\n[/]");
+
+            var workerId = AnsiConsole.Ask<int>("Type worker's [green]ID[/]: ");
+
+            var worker = await ApiService.GetWorkerByIdAsync(workerId);
+
+            if (worker == null)
+            {
+                AnsiConsole.MarkupLine("[red]The worker could not be found.[/]");
+            }
+            else
+            {
+                Display.ShowWorker(worker);
+            }
+
+            AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
+            Console.ReadKey();
+
+            Console.Clear();
+            break;
+        }
     }
     private static void CreateWorker()
     {

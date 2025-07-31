@@ -27,7 +27,7 @@ public static class Display
         AnsiConsole.Write(table);
     }
 
-    public static void ShowContact(Worker worker)
+    public static void ShowWorker(Worker worker)
     {
         var table = new Table();
         table.Border(TableBorder.Rounded);

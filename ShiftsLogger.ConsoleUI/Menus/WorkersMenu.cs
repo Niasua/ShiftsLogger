@@ -1,4 +1,5 @@
-﻿using ShiftsLogger.ConsoleUI.UI;
+﻿using ShiftsLogger.ConsoleUI.Models;
+using ShiftsLogger.ConsoleUI.UI;
 using Spectre.Console;
 
 namespace ShiftsLogger.ConsoleUI.Menus;
@@ -37,7 +38,7 @@ public class WorkersMenu
 
                 case "Create Worker":
 
-                    CreateWorker();
+                    await CreateWorker();
 
                     break;
 
@@ -114,9 +115,33 @@ public class WorkersMenu
             break;
         }
     }
-    private static void CreateWorker()
+    private static async Task CreateWorker()
     {
-        throw new NotImplementedException();
+        while (true)
+        {
+            Console.Clear();
+            AnsiConsole.MarkupLine("[green]Create Worker\n[/]");
+
+            var name = AnsiConsole.Ask<string>("Type worker's [green]Name[/]: ");
+            var job = AnsiConsole.Ask<string>("Type worker's [green]Job[/]: ");
+
+            var worker = await ApiService.CreateWorkerAsync(new Worker { Name = name, Job = job });
+
+            if (worker == null)
+            {
+                AnsiConsole.MarkupLine("\n[red]Worker creation was not posible.[/]");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("\n[green]Worker was successfully created.[/]");
+            }
+
+            AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
+            Console.ReadKey();
+
+            Console.Clear();
+            break;
+        }
     }
     private static void EditWorker()
     {

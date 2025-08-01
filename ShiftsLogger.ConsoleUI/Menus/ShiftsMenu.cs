@@ -98,6 +98,7 @@ public class ShiftsMenu
         var workers = await ApiService.GetAllWorkersAsync();
 
         var worker = Display.PromptSelectWorker(workers);
+        if (worker == null) return;
 
         var shifts = await ApiService.GetShiftsByWorkerIdAsync(worker.Id);
 
@@ -117,42 +118,56 @@ public class ShiftsMenu
     }
     private static async Task ShowShiftById()
     {
-        Console.Clear();
-        AnsiConsole.MarkupLine("[green]View Shift\n[/]");
-
-        var id = AnsiConsole.Ask<int>("Type shift's [green]ID[/]: ");
-
-        var shift = await ApiService.GetShiftByIdAsync(id);
-
-        if (shift == null)
+        while (true)
         {
-            AnsiConsole.MarkupLine("\n[red]The shift could not be found.[/]");
-        }
-        else
-        {
-            await Display.ShowShiftAsync(shift);
-        }
+            Console.Clear();
+            AnsiConsole.MarkupLine("[green]View Shift\n[/]");
 
-        AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
-        Console.ReadKey();
+            var input = AnsiConsole.Ask<string>("Type shift's [green]ID[/] ('zzz' to return): ");
 
-        Console.Clear();
+            if (input.Trim().ToLower() == "zzz") return;
+
+            if (!int.TryParse(input, out int id))
+            {
+                AnsiConsole.MarkupLine("\n[red]Please enter a valid number or 'zzz' to return.[/]");
+                Console.ReadKey();
+                continue;
+            }
+
+            var shift = await ApiService.GetShiftByIdAsync(id);
+
+            if (shift == null)
+            {
+                AnsiConsole.MarkupLine("\n[red]The shift could not be found.[/]");
+            }
+            else
+            {
+                await Display.ShowShiftAsync(shift);
+            }
+
+            AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
+            Console.ReadKey();
+
+            Console.Clear(); 
+        }
     }
     private static async Task CreateShift()
     {
         Console.Clear();
-        AnsiConsole.MarkupLine("[green]Create Shift\n[/]");
+        AnsiConsole.MarkupLine("[green]Create Shift ('zzz' to return)\n[/]");
 
-        DateTime start, end;
+        DateTime? start, end;
 
         while(true)
         {
             AnsiConsole.MarkupLine("[green]Shift start:[/]");
             start = Display.PromptSelectDateTime();
+            if (start == null) return;
             AnsiConsole.MarkupLine($"\n[green]You've typed {start:g}[/]\n");
 
             AnsiConsole.MarkupLine("[green]Shift end:[/]");
             end = Display.PromptSelectDateTime();
+            if (end == null) return;
             AnsiConsole.MarkupLine($"\n[green]You've typed {end:g}[/]\n");
 
             if (end <= start)
@@ -165,16 +180,26 @@ public class ShiftsMenu
             }
         }
 
-        var type = AnsiConsole.Prompt(
-            new SelectionPrompt<ShiftType>()
-            .Title("\nSelect type:")
-            .AddChoices(Enum.GetValues<ShiftType>())
-            );
+        var choices = Enum.GetValues<ShiftType>()
+                  .Select(t => t.ToString())
+                  .Prepend("zzz")
+                  .ToList();
+
+        var typeStr = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("\nSelect type (or [grey]zzz[/] to cancel):")
+                .AddChoices(choices));
+
+        if (typeStr == "zzz")
+            return; 
+
+        var type = Enum.Parse<ShiftType>(typeStr);
 
         var workers = await ApiService.GetAllWorkersAsync();
         var worker = Display.PromptSelectWorker(workers);
+        if (worker == null) return;
 
-        var created = await ApiService.CreateShiftAsync(new Shift { Start = start, End = end, Type = type, WorkerId = worker.Id });
+        var created = await ApiService.CreateShiftAsync(new Shift { Start = (DateTime)start, End = (DateTime)end, Type = type, WorkerId = worker.Id });
 
         if (created == null)
         {
@@ -197,6 +222,7 @@ public class ShiftsMenu
 
         var shifts = await ApiService.GetAllShiftsAsync();
         var shift = await Display.PromptSelectShiftAsync(shifts);
+        if (shift == null) return;
 
         var newShift = new Shift
         {
@@ -213,7 +239,7 @@ public class ShiftsMenu
 
         if (startTimeInput)
         {
-            newShift.Start = Display.PromptSelectDateTime();
+            newShift.Start = (DateTime)Display.PromptSelectDateTime();
         }
         else
         {
@@ -230,7 +256,7 @@ public class ShiftsMenu
 
         if (endTimeInput)
         {
-            newShift.End = Display.PromptSelectDateTime();
+            newShift.End = (DateTime)Display.PromptSelectDateTime();
         }
         else
         {
@@ -274,6 +300,7 @@ public class ShiftsMenu
         {
             var workers = await ApiService.GetAllWorkersAsync();
             worker = Display.PromptSelectWorker(workers);
+            if (worker == null) return;
 
             newShift.WorkerId = worker.Id;
         }
@@ -305,6 +332,7 @@ public class ShiftsMenu
 
         var shifts = await ApiService.GetAllShiftsAsync();
         var shift = await Display.PromptSelectShiftAsync(shifts);
+        if (shift == null) return;
 
         var confirmation = AnsiConsole.Prompt(
             new SelectionPrompt<string>()

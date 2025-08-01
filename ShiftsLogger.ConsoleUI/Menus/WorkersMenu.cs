@@ -93,9 +93,19 @@ public class WorkersMenu
         while (true)
         {
             Console.Clear();
-            AnsiConsole.MarkupLine("[green]View Worker\n[/]");
+            AnsiConsole.MarkupLine("[green]View Worker ('zzz' to return)\n[/]");
 
-            var workerId = AnsiConsole.Ask<int>("Type worker's [green]ID[/]: ");
+            var input = AnsiConsole.Ask<string>("Type worker's [green]ID[/] or 'zzz' to return:");
+
+            if (input.Trim().ToLower() == "zzz")
+                return;
+
+            if (!int.TryParse(input, out int workerId))
+            {
+                AnsiConsole.MarkupLine("\n[red]Please enter a valid number or 'zzz' to return.[/]");
+                Console.ReadKey();
+                continue;
+            }
 
             var worker = await ApiService.GetWorkerByIdAsync(workerId);
 
@@ -114,13 +124,14 @@ public class WorkersMenu
             Console.Clear();
             break;
         }
+
     }
     private static async Task CreateWorker()
     {
         while (true)
         {
             Console.Clear();
-            AnsiConsole.MarkupLine("[green]Create Worker\n[/]");
+            AnsiConsole.MarkupLine("[green]Create Worker ('zzz' to return)\n[/]");
 
             var name = AnsiConsole.Prompt(
                 new TextPrompt<string>("Type worker's [green]Name[/]:")
@@ -130,8 +141,10 @@ public class WorkersMenu
                         : ValidationResult.Success()
                         )
                     );
+            if (name == "zzz") break;
 
             var job = AnsiConsole.Ask<string>("Type worker's [green]Job[/]: ");
+            if (job == "zzz") break;
 
             var worker = await ApiService.CreateWorkerAsync(new Worker { Name = name, Job = job });
 
@@ -156,21 +169,24 @@ public class WorkersMenu
         while (true)
         {
             Console.Clear();
-            AnsiConsole.MarkupLine("[green]Edit Worker\n[/]");
+            AnsiConsole.MarkupLine("[green]Edit Worker ('zzz' to return)\n[/]");
 
             var workers = await ApiService.GetAllWorkersAsync();
 
             var worker = Display.PromptSelectWorker(workers);
+            if (worker == null) return;
 
             var name = AnsiConsole.Prompt(
                 new TextPrompt<string>($"Type worker's [green]Name[/] ([grey]{worker.Name}[/]):")
                     .AllowEmpty()
             );
+            if (name == "zzz") break;
 
             var job = AnsiConsole.Prompt(
                 new TextPrompt<string>($"Type worker's [green]Job[/] ([grey]{worker.Job}[/]):")
                     .AllowEmpty()
             );
+            if (job == "zzz") break;
 
             var updatedWorker = new Worker
             {
@@ -207,6 +223,7 @@ public class WorkersMenu
             var workers = await ApiService.GetAllWorkersAsync();
 
             var worker = Display.PromptSelectWorker(workers);
+            if (worker == null) return;
 
             var removed = await ApiService.DeleteWorkerAsync(worker.Id);
 

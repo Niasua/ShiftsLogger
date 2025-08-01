@@ -54,15 +54,20 @@ public static class Display
             return null;
         }
 
+        var backOption = new Worker { Id = -1, Name = "[Back]", Job = "" };
+
         var selected = AnsiConsole.Prompt(
             new SelectionPrompt<Worker>()
             .Title("[green]\nSelect a worker:[/]")
             .PageSize(10)
-            .UseConverter(w => $"[green]{w.Id}[/] - [green]{w.Name}[/] - [green]{w.Job}[/]")
-            .AddChoices(workers)
+            .UseConverter(w =>
+                w.Id == -1
+                    ? "[grey]Back[/]"
+                    : $"[green]{w.Id}[/] - [green]{w.Name}[/] - [green]{w.Job}[/]")
+            .AddChoices(workers.Append(backOption))
         );
 
-        return selected;
+        return selected.Id == -1 ? null : selected;
     }
 
     public static async Task ShowShiftsAsync(List<Shift> shifts)
@@ -114,36 +119,60 @@ public static class Display
         AnsiConsole.Write(table);
     }
 
-    public static DateTime PromptSelectDateTime()
+    public static DateTime? PromptSelectDateTime()
     {
-        int year = AnsiConsole.Prompt(
-            new TextPrompt<int>("Year:")
-            .Validate(y => y >= DateTime.Now.Year ? ValidationResult.Success() : ValidationResult.Error("Year must be this year or later")));
+        string zzz = "zzz";
 
-        int month = AnsiConsole.Prompt(
-            new SelectionPrompt<int>()
-            .Title("Select month:")
-            .AddChoices(Enumerable.Range(1, 12).ToArray()));
+        string yearInput = AnsiConsole.Ask<string>("Year (or 'zzz' to cancel):");
+        if (yearInput.ToLower() == zzz) return null;
+        if (!int.TryParse(yearInput, out int year) || year < DateTime.Now.Year)
+        {
+            AnsiConsole.MarkupLine("[red]Invalid year. Must be this year or later.[/]");
+            return PromptSelectDateTime();
+        }
 
-        int day = AnsiConsole.Prompt(
-            new SelectionPrompt<int>()
-            .Title("Select day:")
-            .AddChoices(Enumerable.Range(1, DateTime.DaysInMonth(year, month)).ToArray())
-            );
+        var month = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Select month (or [grey]zzz[/] to cancel):")
+                .AddChoices(Enumerable.Range(1, 12).Select(m => m.ToString("00")).Prepend(zzz)));
 
-        int hour = AnsiConsole.Prompt(
-            new SelectionPrompt<int>()
-            .Title("Select hour:")
-            .AddChoices(Enumerable.Range(0, 24).ToArray())
-            );
+        if (month == zzz) return null;
 
-        int minute = AnsiConsole.Prompt(
-            new SelectionPrompt<int>()
-            .Title("Select minute:")
-            .AddChoices(Enumerable.Range(0, 60).ToArray())
-            );
+        var day = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Select day (or [grey]zzz[/] to cancel):")
+                .AddChoices(Enumerable.Range(1, DateTime.DaysInMonth(year, int.Parse(month)))
+                                      .Select(d => d.ToString("00"))
+                                      .Prepend(zzz)));
 
-        return new DateTime(year, month, day, hour, minute, 0);
+        if (day == zzz) return null;
+
+        var hour = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Select hour (or [grey]zzz[/] to cancel):")
+                .AddChoices(Enumerable.Range(0, 24)
+                                      .Select(h => h.ToString("00"))
+                                      .Prepend(zzz)));
+
+        if (hour == zzz) return null;
+
+        var minute = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("Select minute (or [grey]zzz[/] to cancel):")
+                .AddChoices(Enumerable.Range(0, 60)
+                                      .Select(m => m.ToString("00"))
+                                      .Prepend(zzz)));
+
+        if (minute == zzz) return null;
+
+        return new DateTime(
+            year,
+            int.Parse(month),
+            int.Parse(day),
+            int.Parse(hour),
+            int.Parse(minute),
+            0
+        );
     }
 
     public static async Task<Shift?> PromptSelectShiftAsync(List<Shift> shifts)
@@ -158,17 +187,25 @@ public static class Display
         var allWorkers = await apiService.GetAllWorkersAsync();
         var workerDict = allWorkers.ToDictionary(w => w.Id, w => w.Name);
 
-        var selected = AnsiConsole.Prompt(
-            new SelectionPrompt<Shift>()
-            .Title("[green]\nSelect a shift:[/]")
-            .PageSize(10)
-            .UseConverter(s =>
+        var shiftChoices = shifts
+            .Select(s =>
             {
                 var workerName = workerDict.ContainsKey(s.WorkerId) ? workerDict[s.WorkerId] : "[Unknown]";
-                return $"[green]{s.Start:g}[/] - [green]{s.End:g}[/] - [green]{s.Type}[/] - [green]{workerName}[/]";
+                var label = $"{s.Start:g} - {s.End:g} - {s.Type} - {workerName}";
+                return new { Shift = s, Label = label };
             })
-            .AddChoices(shifts)
+            .ToList();
+
+        shiftChoices.Insert(0, new { Shift = (Shift?)null, Label = "[grey]Back[/]" });
+
+        var selectedLabel = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[green]\nSelect a shift:[/]")
+                .PageSize(10)
+                .AddChoices(shiftChoices.Select(c => c.Label))
         );
+
+        var selected = shiftChoices.FirstOrDefault(c => c.Label == selectedLabel)?.Shift;
 
         return selected;
     }

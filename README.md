@@ -18,23 +18,24 @@ The project is built using **.NET 8**, **Entity Framework Core (Code-First)**, *
 
 ## 📁 Project Structure
 
+```
 ShiftsLogger/
 │
-├── ShiftsLogger.API/ → Web API project (back-end)
-│ ├── Controllers/
-| ├── Data/
-│ ├── Models/
-| ├── Migrations/
-│ ├── Services/
-│ └── Program.cs
+├── ShiftsLogger.API/           # Web API project (back-end)
+│   ├── Controllers/            # API endpoints
+│   ├── Data/                   # DbContext and configuration
+│   ├── Models/                 # Entity models
+│   ├── Migrations/             # EF Core migrations
+│   ├── Services/               # Business logic
+│   └── Program.cs              # Entry point
 │
-├── ShiftsLogger.ConsoleUI/ → Console app (front-end)
-│ ├── Menus/
-│ ├── UI/
-│ ├── Models/
-│ ├── ApiService.cs
-│ └── Program.cs
-
+├── ShiftsLogger.ConsoleUI/     # Console app (front-end)
+│   ├── Menus/                  # Menu navigation
+│   ├── UI/                     # Display and input prompts
+│   ├── Models/                 # Internal models
+│   ├── ApiService.cs           # Handles API requests
+│   └── Program.cs              # Entry point
+```
 
 ---
 

@@ -90,4 +90,27 @@ public static class Display
 
         AnsiConsole.Write(table);
     }
+
+    public static async Task ShowShift(Shift shift)
+    {
+        var table = new Table();
+        table.Border(TableBorder.Rounded);
+        table.AddColumn("[yellow]Start[/]");
+        table.AddColumn("[blue]End[/]");
+        table.AddColumn("[green]Type[/]");
+        table.AddColumn("[cyan]Worker[/]");
+
+        var apiService = new ApiService();
+
+        var worker = await apiService.GetWorkerByIdAsync(shift.WorkerId);
+
+        table.AddRow(
+            shift.Start.ToString("g"),
+            shift.End.ToString("g"),
+            shift.Type.ToString(),
+            worker?.Name ?? "[Unknown]"
+        );
+
+        AnsiConsole.Write(table);
+    }
 }

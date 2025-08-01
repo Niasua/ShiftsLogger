@@ -195,7 +195,6 @@ public class ShiftsMenu
         Console.Clear();
         AnsiConsole.MarkupLine("[green]Edit Shift\n[/]");
 
-
         var shifts = await ApiService.GetAllShiftsAsync();
         var shift = await Display.PromptSelectShiftAsync(shifts);
 
@@ -301,6 +300,34 @@ public class ShiftsMenu
     }
     private static async Task RemoveShift()
     {
-        throw new NotImplementedException();
+        Console.Clear();
+        AnsiConsole.MarkupLine("[green]Remove Shift\n[/]");
+
+        var shifts = await ApiService.GetAllShiftsAsync();
+        var shift = await Display.PromptSelectShiftAsync(shifts);
+
+        var confirmation = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title($"Are you sure you want to [red]Remove[/] the Shift?")
+                .PageSize(10)
+                .MoreChoicesText("[grey](Move up and down)[/]")
+                .AddChoices(new[] {
+                    "Yes", "No"
+        }));
+
+        if (confirmation == "Yes")
+        {
+            var deleted = ApiService.DeleteShiftAsync(shift.Id);
+            AnsiConsole.MarkupLine("\n[green]Shift was successfully removed.[/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("\n[red]Shift removal was not possible.[/]");
+        }
+
+        AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
+        Console.ReadKey();
+
+        Console.Clear();
     }
 }

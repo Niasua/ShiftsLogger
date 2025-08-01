@@ -14,7 +14,6 @@ public class ApiService
     }
 
     //Workers
-
     public async Task<List<Worker>?> GetAllWorkersAsync()
     {
         try
@@ -27,7 +26,6 @@ public class ApiService
             return null;
         }
     }
-
     public async Task<Worker?> GetWorkerByIdAsync(int id)
     {
         try
@@ -40,7 +38,6 @@ public class ApiService
             return null;
         }
     }
-
     public async Task<Worker?> CreateWorkerAsync(Worker worker)
     {
         try
@@ -55,7 +52,6 @@ public class ApiService
             return null;
         }
     }
-
     public async Task<bool> UpdateWorkerAsync(int id, Worker worker)
     {
         try
@@ -69,7 +65,6 @@ public class ApiService
             return false;
         }
     }
-
     public async Task<bool> DeleteWorkerAsync(int id)
     {
         try
@@ -109,7 +104,6 @@ public class ApiService
             return null;
         }
     }
-
     public async Task<Shift?> GetShiftByIdAsync(int id)
     {
         try
@@ -122,7 +116,6 @@ public class ApiService
             return null;
         }
     }
-
     public async Task<Shift?> CreateShiftAsync(Shift shift)
     {
         try
@@ -137,7 +130,6 @@ public class ApiService
             return null;
         }
     }
-
     public async Task<bool> UpdateShiftAsync(int id, Shift shift)
     {
         try
@@ -151,7 +143,6 @@ public class ApiService
             return false;
         }
     }
-
     public async Task<bool> DeleteShiftAsync(int id)
     {
         try

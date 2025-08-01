@@ -82,7 +82,7 @@ public class ShiftsMenu
         }
         else
         {
-            await Display.ShowShifts(shifts);
+            await Display.ShowShiftsAsync(shifts);
         }
 
         AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
@@ -107,7 +107,7 @@ public class ShiftsMenu
         }
         else
         {
-            await Display.ShowShifts(shifts);
+            await Display.ShowShiftsAsync(shifts);
         }
 
         AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
@@ -130,7 +130,7 @@ public class ShiftsMenu
         }
         else
         {
-            await Display.ShowShift(shift);
+            await Display.ShowShiftAsync(shift);
         }
 
         AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
@@ -192,7 +192,112 @@ public class ShiftsMenu
     }
     private static async Task EditShift()
     {
-        throw new NotImplementedException();
+        Console.Clear();
+        AnsiConsole.MarkupLine("[green]Edit Shift\n[/]");
+
+
+        var shifts = await ApiService.GetAllShiftsAsync();
+        var shift = await Display.PromptSelectShiftAsync(shifts);
+
+        var newShift = new Shift
+        {
+            Id = shift.Id
+        };
+
+        // Start Time
+        var startTimeInput = AnsiConsole.Prompt(
+            new TextPrompt<bool>($"Want to change Start Time ({shift.Start:g})?")
+                .AddChoice(true)
+                .AddChoice(false)
+                .DefaultValue(false)
+                .WithConverter(choice => choice ? "y" : "n"));
+
+        if (startTimeInput)
+        {
+            newShift.Start = Display.PromptSelectDateTime();
+        }
+        else
+        {
+            newShift.Start = shift.Start;
+        }
+
+        // End Time
+        var endTimeInput = AnsiConsole.Prompt(
+            new TextPrompt<bool>($"Want to change End Time ({shift.End:g})?")
+                .AddChoice(true)
+                .AddChoice(false)
+                .DefaultValue(false)
+                .WithConverter(choice => choice ? "y" : "n"));
+
+        if (endTimeInput)
+        {
+            newShift.End = Display.PromptSelectDateTime();
+        }
+        else
+        {
+            newShift.End = shift.End;
+        }
+
+        // Type
+        var typeInput = AnsiConsole.Prompt(
+                    new TextPrompt<bool>($"Want to change Type ({shift.Type.ToString()})?")
+                        .AddChoice(true)
+                        .AddChoice(false)
+                        .DefaultValue(false)
+                        .WithConverter(choice => choice ? "y" : "n"));
+
+        if (typeInput)
+        {
+            var type = AnsiConsole.Prompt(
+                new SelectionPrompt<ShiftType>()
+                .Title("\nSelect type:")
+                .AddChoices(Enum.GetValues<ShiftType>())
+                );
+
+            newShift.Type = type;
+        }
+        else
+        {
+            newShift.Type = shift.Type;
+        }
+
+        // Worker
+        var worker = await ApiService.GetWorkerByIdAsync(shift.WorkerId);
+
+        var workerInput = AnsiConsole.Prompt(
+                    new TextPrompt<bool>($"Want to change Worker ({worker.Name})?")
+                        .AddChoice(true)
+                        .AddChoice(false)
+                        .DefaultValue(false)
+                        .WithConverter(choice => choice ? "y" : "n"));
+
+        if (workerInput)
+        {
+            var workers = await ApiService.GetAllWorkersAsync();
+            worker = Display.PromptSelectWorker(workers);
+
+            newShift.WorkerId = worker.Id;
+        }
+        else
+        {
+            newShift.WorkerId = shift.WorkerId;
+        }
+
+        var updated = await ApiService.UpdateShiftAsync(shift.Id, newShift);
+
+        if (!updated)
+        {
+            AnsiConsole.MarkupLine("\n[red]Shift edit was not possible.[/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("\n[green]Shift was successfully edited.[/]");
+        }
+
+        AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
+        Console.ReadKey();
+
+        Console.Clear();
     }
     private static async Task RemoveShift()
     {

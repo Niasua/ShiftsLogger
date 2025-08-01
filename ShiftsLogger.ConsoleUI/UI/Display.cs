@@ -50,13 +50,13 @@ public static class Display
     {
         if (workers == null || workers.Count == 0)
         {
-            AnsiConsole.MarkupLine("[red]No workers available.[/]");
+            AnsiConsole.MarkupLine("\n[red]No workers available.[/]");
             return null;
         }
 
         var selected = AnsiConsole.Prompt(
             new SelectionPrompt<Worker>()
-            .Title("[green]Select a worker:[/]")
+            .Title("[green]\nSelect a worker:[/]")
             .PageSize(10)
             .UseConverter(w => $"[green]{w.Id}[/] - [green]{w.Name}[/] - [green]{w.Job}[/]")
             .AddChoices(workers)
@@ -112,5 +112,37 @@ public static class Display
         );
 
         AnsiConsole.Write(table);
+    }
+
+    public static DateTime PromptSelectDateTime()
+    {
+        int year = AnsiConsole.Prompt(
+            new TextPrompt<int>("Year:")
+            .Validate(y => y >= DateTime.Now.Year ? ValidationResult.Success() : ValidationResult.Error("Year must be this year or later")));
+
+        int month = AnsiConsole.Prompt(
+            new SelectionPrompt<int>()
+            .Title("Select month:")
+            .AddChoices(Enumerable.Range(1, 12).ToArray()));
+
+        int day = AnsiConsole.Prompt(
+            new SelectionPrompt<int>()
+            .Title("Select day:")
+            .AddChoices(Enumerable.Range(1, DateTime.DaysInMonth(year, month)).ToArray())
+            );
+
+        int hour = AnsiConsole.Prompt(
+            new SelectionPrompt<int>()
+            .Title("Select hour:")
+            .AddChoices(Enumerable.Range(0, 24).ToArray())
+            );
+
+        int minute = AnsiConsole.Prompt(
+            new SelectionPrompt<int>()
+            .Title("Select minute:")
+            .AddChoices(Enumerable.Range(0, 60).ToArray())
+            );
+
+        return new DateTime(year, month, day, hour, minute, 0);
     }
 }

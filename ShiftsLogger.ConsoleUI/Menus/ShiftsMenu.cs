@@ -1,4 +1,5 @@
-﻿using ShiftsLogger.ConsoleUI.UI;
+﻿using ShiftsLogger.ConsoleUI.Models;
+using ShiftsLogger.ConsoleUI.UI;
 using Spectre.Console;
 
 namespace ShiftsLogger.ConsoleUI.Menus;
@@ -94,9 +95,11 @@ public class ShiftsMenu
         Console.Clear();
         AnsiConsole.MarkupLine("[green]View Worker's Shifts\n[/]");
 
-        var workerId = AnsiConsole.Ask<int>("Type worker's [green]ID[/]: ");
+        var workers = await ApiService.GetAllWorkersAsync();
 
-        var shifts = await ApiService.GetShiftsByWorkerIdAsync(workerId);
+        var worker = Display.PromptSelectWorker(workers);
+
+        var shifts = await ApiService.GetShiftsByWorkerIdAsync(worker.Id);
 
         if (shifts == null || shifts.Count == 0)
         {
@@ -137,7 +140,55 @@ public class ShiftsMenu
     }
     private static async Task CreateShift()
     {
-        throw new NotImplementedException();
+        Console.Clear();
+        AnsiConsole.MarkupLine("[green]Create Shift\n[/]");
+
+        DateTime start, end;
+
+        while(true)
+        {
+            AnsiConsole.MarkupLine("[green]Shift start:[/]");
+            start = Display.PromptSelectDateTime();
+            AnsiConsole.MarkupLine($"\n[green]You've typed {start:g}[/]\n");
+
+            AnsiConsole.MarkupLine("[green]Shift end:[/]");
+            end = Display.PromptSelectDateTime();
+            AnsiConsole.MarkupLine($"\n[green]You've typed {end:g}[/]\n");
+
+            if (end <= start)
+            {
+                AnsiConsole.MarkupLine("[red]End time must be after start time. Try again.[/]\n");
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        var type = AnsiConsole.Prompt(
+            new SelectionPrompt<ShiftType>()
+            .Title("\nSelect type:")
+            .AddChoices(Enum.GetValues<ShiftType>())
+            );
+
+        var workers = await ApiService.GetAllWorkersAsync();
+        var worker = Display.PromptSelectWorker(workers);
+
+        var created = await ApiService.CreateShiftAsync(new Shift { Start = start, End = end, Type = type, WorkerId = worker.Id });
+
+        if (created == null)
+        {
+            AnsiConsole.MarkupLine("\n[red]Shift creation was not possible.[/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("\n[green]Shift was successfully created.[/]");
+        }
+
+        AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
+        Console.ReadKey();
+
+        Console.Clear();
     }
     private static async Task EditShift()
     {

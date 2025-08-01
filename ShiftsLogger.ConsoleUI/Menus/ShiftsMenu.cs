@@ -91,11 +91,49 @@ public class ShiftsMenu
     }
     private static async Task ShowShiftByWorkerId()
     {
-        throw new NotImplementedException();
+        Console.Clear();
+        AnsiConsole.MarkupLine("[green]View Worker's Shifts\n[/]");
+
+        var workerId = AnsiConsole.Ask<int>("Type worker's [green]ID[/]: ");
+
+        var shifts = await ApiService.GetShiftsByWorkerIdAsync(workerId);
+
+        if (shifts == null || shifts.Count == 0)
+        {
+            AnsiConsole.MarkupLine("\n[red]The shifts could not be found.[/]");
+        }
+        else
+        {
+            await Display.ShowShifts(shifts);
+        }
+
+        AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
+        Console.ReadKey();
+
+        Console.Clear();
     }
     private static async Task ShowShiftById()
     {
-        throw new NotImplementedException();
+        Console.Clear();
+        AnsiConsole.MarkupLine("[green]View Shift\n[/]");
+
+        var id = AnsiConsole.Ask<int>("Type shift's [green]ID[/]: ");
+
+        var shift = await ApiService.GetShiftByIdAsync(id);
+
+        if (shift == null)
+        {
+            AnsiConsole.MarkupLine("\n[red]The shift could not be found.[/]");
+        }
+        else
+        {
+            await Display.ShowShift(shift);
+        }
+
+        AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
+        Console.ReadKey();
+
+        Console.Clear();
     }
     private static async Task CreateShift()
     {

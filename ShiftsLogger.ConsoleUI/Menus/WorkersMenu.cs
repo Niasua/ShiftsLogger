@@ -74,7 +74,7 @@ public class WorkersMenu
 
             if (workers == null)
             {
-                AnsiConsole.MarkupLine("[red]The workers could not be found.[/]");
+                AnsiConsole.MarkupLine("\n[red]The workers could not be found.[/]");
             }
             else
             {
@@ -101,7 +101,7 @@ public class WorkersMenu
 
             if (worker == null)
             {
-                AnsiConsole.MarkupLine("[red]The worker could not be found.[/]");
+                AnsiConsole.MarkupLine("\n[red]The worker could not be found.[/]");
             }
             else
             {

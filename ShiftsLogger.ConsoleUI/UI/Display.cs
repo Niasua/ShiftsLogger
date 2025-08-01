@@ -65,7 +65,7 @@ public static class Display
         return selected;
     }
 
-    public static async Task ShowShifts(List<Shift> shifts)
+    public static async Task ShowShiftsAsync(List<Shift> shifts)
     {
         var table = new Table();
         table.Border(TableBorder.Rounded);
@@ -91,7 +91,7 @@ public static class Display
         AnsiConsole.Write(table);
     }
 
-    public static async Task ShowShift(Shift shift)
+    public static async Task ShowShiftAsync(Shift shift)
     {
         var table = new Table();
         table.Border(TableBorder.Rounded);
@@ -144,5 +144,32 @@ public static class Display
             );
 
         return new DateTime(year, month, day, hour, minute, 0);
+    }
+
+    public static async Task<Shift?> PromptSelectShiftAsync(List<Shift> shifts)
+    {
+        if (shifts == null || shifts.Count == 0)
+        {
+            AnsiConsole.MarkupLine("\n[red]No shifts available.[/]");
+            return null;
+        }
+
+        var apiService = new ApiService();
+        var allWorkers = await apiService.GetAllWorkersAsync();
+        var workerDict = allWorkers.ToDictionary(w => w.Id, w => w.Name);
+
+        var selected = AnsiConsole.Prompt(
+            new SelectionPrompt<Shift>()
+            .Title("[green]\nSelect a shift:[/]")
+            .PageSize(10)
+            .UseConverter(s =>
+            {
+                var workerName = workerDict.ContainsKey(s.WorkerId) ? workerDict[s.WorkerId] : "[Unknown]";
+                return $"[green]{s.Start:g}[/] - [green]{s.End:g}[/] - [green]{s.Type}[/] - [green]{workerName}[/]";
+            })
+            .AddChoices(shifts)
+        );
+
+        return selected;
     }
 }

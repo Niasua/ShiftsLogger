@@ -64,4 +64,30 @@ public static class Display
 
         return selected;
     }
+
+    public static async Task ShowShifts(List<Shift> shifts)
+    {
+        var table = new Table();
+        table.Border(TableBorder.Rounded);
+        table.AddColumn("[yellow]Start[/]");
+        table.AddColumn("[blue]End[/]");
+        table.AddColumn("[green]Type[/]");
+        table.AddColumn("[cyan]Worker[/]");
+
+        var apiService = new ApiService();
+
+        foreach (var shift in shifts)
+        {
+            var worker = await apiService.GetWorkerByIdAsync(shift.WorkerId);
+
+            table.AddRow(
+                shift.Start.ToString("g"),
+                shift.End.ToString("g"),
+                shift.Type.ToString(),
+                worker?.Name ?? "[Unknown]"
+            );
+        }
+
+        AnsiConsole.Write(table);
+    }
 }

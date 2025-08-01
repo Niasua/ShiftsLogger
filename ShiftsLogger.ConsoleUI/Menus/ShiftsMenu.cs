@@ -18,7 +18,7 @@ public class ShiftsMenu
                 .Title("[blue]Shifts Menu[/]")
                 .AddChoices(new[]
                 {
-                    "Show All Shifts", "Show Shift by Worker ID", "Show Shift by ID" ,"Create Shift", "Edit Shift", "Remove Shift", "Exit"
+                    "Show All Shifts", "Show Shift by Worker ID", "Show Shift by ID" ,"Create Shift", "Edit Shift", "Remove Shift", "Back"
                 }));
 
             switch (option)
@@ -59,7 +59,7 @@ public class ShiftsMenu
 
                     break;
 
-                case "Exit":
+                case "Back":
 
                     exit = true;
 
@@ -70,7 +70,24 @@ public class ShiftsMenu
 
     private static async Task ShowAllShifts()
     {
-        throw new NotImplementedException();
+        Console.Clear();
+        AnsiConsole.MarkupLine("[green]View Shifts\n[/]");
+
+        var shifts = await ApiService.GetAllShiftsAsync();
+
+        if (shifts == null)
+        {
+            AnsiConsole.MarkupLine("[red]The shifts could not be found.[/]");
+        }
+        else
+        {
+            await Display.ShowShifts(shifts);
+        }
+
+        AnsiConsole.MarkupLine("\n[grey]Press any key to go back...[/]");
+        Console.ReadKey();
+
+        Console.Clear();
     }
     private static async Task ShowShiftByWorkerId()
     {

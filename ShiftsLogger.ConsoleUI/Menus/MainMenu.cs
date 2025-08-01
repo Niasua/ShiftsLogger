@@ -31,7 +31,7 @@ public static class MainMenu
 
                 case "Shifts Menu":
 
-                    ShiftsMenu.Show();
+                    await ShiftsMenu.Show();
 
                     break;
 
